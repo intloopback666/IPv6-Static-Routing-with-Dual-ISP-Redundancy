@@ -1,0 +1,126 @@
+----
+R1
+----
+conf t
+
+ipv6 unicast-routing
+
+int e0/0
+ipv6 add 2001:db8:1111:1::1/64
+no sh
+
+int s1/1
+ipv6 add 2001:db8:1111:12::1/64
+no sh
+
+int s1/2
+ipv6 add 2001:db8:1111:13::1/64
+no sh
+
+int s1/3
+ipv6 enable
+no sh
+
+int e0/1
+ipv6 add 2001:db8:1111:15::1/64
+no sh
+
+int e0/2
+ipv6 add 2001:db8:1111:16::1/64
+no sh
+
+
+ipv6 route 2001:db8:1111:2::/64 se1/1 
+ipv6 route 2001:db8:1111:3::/64 2001:db8:1111:13::2
+ipv6 route 2001:db8:1111:4::/64 se1/3 FE80::A8BB:CCFF:FE00:400
+ipv6 route ::/0 2001:db8:1111:15::2
+ipv6 route ::/0 2001:db8:1111:16::2 10
+
+----
+R2
+----
+conf t
+
+ipv6 unicast-routing
+
+int e0/0
+ipv6 add 2001:db8:1111:2::1/64
+no sh
+
+int s1/1
+ipv6 add 2001:db8:1111:12::2/64
+no sh
+
+ipv6 route ::/0 se1/1 2001:db8:1111:12::1
+
+
+----
+R3
+----
+conf t
+
+ipv6 unicast-routing
+
+int e0/0
+ipv6 add 2001:db8:1111:3::1/64
+no sh
+
+int s1/2
+ipv6 add 2001:db8:1111:13::2/64
+no sh
+
+ipv6 route ::/0 se1/2 2001:db8:1111:13::1
+
+
+----
+R4
+----
+conf t
+
+ipv6 unicast-routing
+
+int e0/0
+ipv6 add 2001:db8:1111:4::1/64
+no sh
+
+int s1/3
+ipv6 enable
+no sh
+
+ipv6 route ::/0 se1/3 FE80::A8BB:CCFF:FE00:100
+
+
+----
+ISP1
+----
+conf t
+
+ipv6 unicast-routing
+
+int loopback 0
+ipv6 add 2001:4860:4860::8888/128
+int e0/1
+ipv6 add 2001:db8:1111:15::2/64
+no sh
+
+ipv6 route ::/0 e0/1 2001:db8:1111:15::1
+----
+ISP2
+----
+conf t
+
+ipv6 unicast-routing
+
+int loopback 0
+ipv6 add 2001:4860:4860::8888/128
+int e0/2
+ipv6 add 2001:db8:1111:16::2/64
+no sh
+
+ipv6 route ::/0 e0/2 2001:db8:1111:16::1
+
+
+
+
+sh ipv6 int br
+sh ipv6 route
